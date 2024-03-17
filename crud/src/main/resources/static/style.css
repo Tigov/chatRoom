@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#room-list {
+    width: 30%;
+    float: left;
+}
+
+#message-area {
+    width: 70%;
+    float: right;
+}
+
+#rooms li {
+    cursor: pointer;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+#rooms li:hover {
+    background-color: #f0f0f0;
+}
+
+#messages {
+    margin-top: 20px;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.message .user {
+    font-weight: bold;
+}
