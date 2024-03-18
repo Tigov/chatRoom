@@ -14,6 +14,8 @@ public interface RoomDAO {
 
     List<User> getAllRoomUsers() throws SQLException;
 
+    List<Room> getAllRooms() throws SQLException;
+
     void addUserToRoom(User user) throws SQLException;
 
     void addMsgToRoom(Message msg) throws SQLException;
