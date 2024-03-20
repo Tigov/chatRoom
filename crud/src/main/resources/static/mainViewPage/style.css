@@ -34,8 +34,15 @@ body {
     padding: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .message .user {
     font-weight: bold;
+}
+
+.timestamp {
+    margin-left: auto;
 }

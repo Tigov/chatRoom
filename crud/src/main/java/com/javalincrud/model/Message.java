@@ -18,21 +18,24 @@ public class Message {
 
     @ManyToOne
     private int roomId;
-
-    private User user;
     private String text;
+    private String username;
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());// use the .toString of this;
 
-    public Message(Room room, User owner, String text) {
-        this.user = owner;
-        this.userId = owner.getId();
+    public Message(Room room, String text) {
         this.text = text;
         this.roomId = room.getId();
     }
 
-    public Message(int messageId, int ownerId, String msgText, Timestamp ts) {
+    public Message(String text, String username, Timestamp ts) {
+        this.text = text;
+        this.username = username;
+        this.timestamp = ts;
+    }
+
+    public Message(int messageId, int userId, String msgText, Timestamp ts) {
         this.msgId = messageId;
-        this.userId = ownerId;
+        this.userId = userId;
         this.text = msgText;
         this.timestamp = ts;
     }
@@ -57,8 +60,16 @@ public class Message {
         return timestamp;
     }
 
-    public User getOwner() {
-        return this.user;
+    public int getUserId() {
+        return this.userId;
+    }
+
+    public void setMsgUsername(String username) {
+        this.username = username;
+    }
+
+    public String getMsgUsername() {
+        return this.username;
     }
 
     @Override

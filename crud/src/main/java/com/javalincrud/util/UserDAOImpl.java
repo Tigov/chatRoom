@@ -13,7 +13,7 @@ import com.javalincrud.model.DAO.UserDAO;
 public class UserDAOImpl implements UserDAO {
 
     @Override
-    public User findUserById(int id) throws SQLException {
+    public User getUserById(int id) throws SQLException {
         Connection con = DatabaseCon.getConnection();
         User foundUser = null;
         String sql = "SELECT * FROM users WHERE users.userId = ?";
@@ -31,7 +31,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User findUserByUsernamePass(String username, String pass) throws SQLException {
+    public User getUserByUsernamePass(String username, String pass) throws SQLException {
         Connection con = DatabaseCon.getConnection();
         User foundUser = null;
         String sql = "SELECT * FROM users WHERE users.username = ? AND users.password = ?";
@@ -78,13 +78,13 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public int createUser(User user) throws SQLException {
+    public int createUser(String username, String password) throws SQLException {
         int userCreatedId = -1;
         Connection con = DatabaseCon.getConnection();
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-        ps.setString(1, user.getUsername());
-        ps.setString(2, user.getPassword());
+        ps.setString(1, username);
+        ps.setString(2, password);
         ps.executeUpdate();
 
         ResultSet rs = ps.getGeneratedKeys();

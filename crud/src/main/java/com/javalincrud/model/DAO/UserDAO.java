@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface UserDAO {
-    User findUserById(int id) throws SQLException;
+    User getUserById(int id) throws SQLException;
 
-    User findUserByUsernamePass(String username, String pass) throws SQLException;
+    User getUserByUsernamePass(String username, String pass) throws SQLException;
 
     List<User> getAllUsers() throws SQLException;
 
@@ -16,6 +16,6 @@ public interface UserDAO {
 
     void updateUser(User user) throws SQLException;
 
-    int createUser(User user) throws SQLException;
+    int createUser(String username, String password) throws SQLException;
 
 }

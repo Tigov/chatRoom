@@ -6,6 +6,7 @@ import com.javalincrud.model.User;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface RoomDAO {
     Room getRoomById() throws SQLException;
@@ -20,8 +21,10 @@ public interface RoomDAO {
 
     void addMsgToRoom(Message msg) throws SQLException;
 
-    void createRoom(Room room) throws SQLException;
+    int createRoom() throws SQLException;
 
     void deleteRoomByRoomId(int roomId) throws SQLException;
+
+    List<Message> getFormattedMsgsInRoomId(int roomId) throws SQLException;
 
 }
