@@ -13,6 +13,8 @@ import com.javalincrud.model.Room;
 import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.RoomDAO;
 
+import io.javalin.http.Result;
+
 public class RoomDAOImpl implements RoomDAO {
 
     @Override
@@ -30,7 +32,8 @@ public class RoomDAOImpl implements RoomDAO {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             int roomId = rs.getInt(1);
-            Room newRoom = new Room(roomId);
+            int numberOfUsers = rs.getInt(2);
+            Room newRoom = new Room(roomId, numberOfUsers);
             allRooms.add(newRoom);
         }
         return allRooms;
@@ -88,7 +91,8 @@ public class RoomDAOImpl implements RoomDAO {
                 "FROM messages m " +
                 "INNER JOIN rooms r ON m.roomId = r.roomId " +
                 "INNER JOIN users u ON m.userId = u.userId " +
-                "WHERE m.roomId = ?";
+                "WHERE m.roomId = ? " +
+                "ORDER BY m.timestamp ASC";
 
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, roomId);
@@ -101,6 +105,67 @@ public class RoomDAOImpl implements RoomDAO {
             allFormattedMsgs.add(retMsg);
         }
         return allFormattedMsgs;
-
     }
+
+    @Override
+    public int getNumberOfUsersInRoom(int roomId) throws SQLException {
+        Connection con = DatabaseCon.getConnection();
+        String sql = "SELECT rooms.numberOfUsers FROM rooms WHERE rooms.roomdId = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, roomId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return (int) rs.getInt("numberOfUsers");
+        }
+        return 0;
+    };
+
+    @Override
+    public int incNumberOfUsersInRoom(int roomId) throws SQLException {
+        Connection con = DatabaseCon.getConnection();
+
+        // Increment the numberOfUsers
+        String updateSql = "UPDATE rooms SET numberOfUsers = numberOfUsers + 1 WHERE rooms.roomId = ?";
+        PreparedStatement updatePs = con.prepareStatement(updateSql);
+        updatePs.setInt(1, roomId);
+        updatePs.executeUpdate();
+
+        // Get the updated numberOfUsers
+        String selectSql = "SELECT numberOfUsers FROM rooms WHERE rooms.roomId = ?";
+        PreparedStatement selectPs = con.prepareStatement(selectSql);
+        selectPs.setInt(1, roomId);
+        ResultSet rs = selectPs.executeQuery();
+
+        // If the result set is not empty, return the updated numberOfUsers
+        if (rs.next()) {
+            return rs.getInt("numberOfUsers");
+        } else {
+            throw new SQLException("Room not found");
+        }
+    }
+
+    @Override
+    public int decNumberOfUsersInRoom(int roomId) throws SQLException {
+        Connection con = DatabaseCon.getConnection();
+
+        // Increment the numberOfUsers
+        String updateSql = "UPDATE rooms SET numberOfUsers = numberOfUsers - 1 WHERE rooms.roomId = ?";
+        PreparedStatement updatePs = con.prepareStatement(updateSql);
+        updatePs.setInt(1, roomId);
+        updatePs.executeUpdate();
+
+        // Get the updated numberOfUsers
+        String selectSql = "SELECT numberOfUsers FROM rooms WHERE rooms.roomId = ?";
+        PreparedStatement selectPs = con.prepareStatement(selectSql);
+        selectPs.setInt(1, roomId);
+        ResultSet rs = selectPs.executeQuery();
+
+        // If the result set is not empty, return the updated numberOfUsers
+        if (rs.next()) {
+            return rs.getInt("numberOfUsers");
+        } else {
+            throw new SQLException("Room not found");
+        }
+    }
+
 }

@@ -10,6 +10,8 @@ public interface UserDAO {
 
     User getUserByUsernamePass(String username, String pass) throws SQLException;
 
+    User getUserByUniqueUsername(String username) throws SQLException;
+
     List<User> getAllUsers() throws SQLException;
 
     void deleteUserById(int id) throws SQLException;

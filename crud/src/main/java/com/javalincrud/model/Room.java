@@ -24,6 +24,12 @@ public class Room {
         numberOfUsersInRoom = 0;
     }
 
+    public Room(int id, int numberOfUsers) {
+        this.id = id;
+        numberOfRooms++;
+        numberOfUsersInRoom = numberOfUsers;
+    }
+
     public int getId() {
         return id;
     }
@@ -40,42 +46,20 @@ public class Room {
         return this.numberOfUsersInRoom;
     }
 
-    public List<Message> getAllRoomMessages() {
-        return allRoomMessages;
+    public void setNumberOfUsersInRoom(int number) {
+        this.numberOfUsersInRoom = number;
     }
 
-    public void setAllRoomMessages(List<Message> allRoomMessages) {
-        this.allRoomMessages = allRoomMessages;
-    }
-
-    public List<User> getAllCurrentUsersInRoom() {
-        return allCurrentUsersInRoom;
-    }
-
-    public void setAllCurrentUsersInRoom(List<User> allCurrentUsersInRoom) {
-        this.allCurrentUsersInRoom = allCurrentUsersInRoom;
-    }
-
-    public void deleteRoom(Room room) {
-        numberOfRooms--;
-    }
-
-    public void addUserToRoom(User user) {
-        this.allCurrentUsersInRoom.add(user);
+    public void incNumberOfUsers() {
         this.numberOfUsersInRoom++;
     }
 
-    public void removeUserFromRoom(User user) {
-        for (int i = 0; i < this.allCurrentUsersInRoom.size(); i++) {
-            if (this.allCurrentUsersInRoom.get(i).getId() == user.getId()) {
-                this.allCurrentUsersInRoom.remove(i);
-                this.numberOfUsersInRoom--;
-            }
-        }
+    public void decNumberOfUsers() {
+        this.numberOfUsersInRoom--;
     }
 
-    public void postMessageToRoom(Message msg) {
-        this.allRoomMessages.add(msg);
+    public List<Message> getAllRoomMessages() {
+        return allRoomMessages;
     }
 
     @Override

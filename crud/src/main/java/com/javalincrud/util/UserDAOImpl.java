@@ -9,6 +9,9 @@ import java.util.List;
 
 import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.UserDAO;
+import com.mysql.cj.jdbc.interceptors.ResultSetScannerInterceptor;
+
+import scala.annotation.unused;
 
 public class UserDAOImpl implements UserDAO {
 
@@ -92,6 +95,23 @@ public class UserDAOImpl implements UserDAO {
             userCreatedId = rs.getInt(1);
         }
         return userCreatedId;
+    }
+
+    @Override
+    public User getUserByUniqueUsername(String username) throws SQLException {
+        Connection con = DatabaseCon.getConnection();
+        User foundUser = null;
+        String sql = "SELECT * FROM users WHERE users.username = ?";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, username);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()){
+            int userId = rs.getInt("userId");
+            String userName = rs.getString("username");
+            String password = rs.getString("password");
+            foundUser = new User(userId, userName, password);
+        }
+        return foundUser;
     }
 
 }

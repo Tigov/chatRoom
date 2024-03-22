@@ -27,4 +27,10 @@ public interface RoomDAO {
 
     List<Message> getFormattedMsgsInRoomId(int roomId) throws SQLException;
 
+    int getNumberOfUsersInRoom(int roomId) throws SQLException;
+
+    int incNumberOfUsersInRoom(int roomId) throws SQLException;
+
+    int decNumberOfUsersInRoom(int roomId) throws SQLException;
+
 }

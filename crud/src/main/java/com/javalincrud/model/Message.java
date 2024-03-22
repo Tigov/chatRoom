@@ -27,6 +27,10 @@ public class Message {
         this.roomId = room.getId();
     }
 
+    public Message() {
+        // no-argument constructor
+    }
+
     public Message(String text, String username, Timestamp ts) {
         this.text = text;
         this.username = username;
@@ -38,6 +42,12 @@ public class Message {
         this.userId = userId;
         this.text = msgText;
         this.timestamp = ts;
+    }
+
+    public Message(int messageId, int userId, String msgText) {
+        this.msgId = messageId;
+        this.userId = userId;
+        this.text = msgText;
     }
 
     public void setId(int id) {

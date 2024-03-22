@@ -2,22 +2,26 @@ package com.javalincrud.controller;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.javalincrud.model.Room;
 import com.javalincrud.model.User;
 import com.javalincrud.model.Message;
 import com.javalincrud.util.JWTSecurity;
-//import com.javalincrud.util.MessageDAOImpl;
+import com.javalincrud.util.MessageDAOImpl;
 import com.javalincrud.util.RoomDAOImpl;
 import com.javalincrud.util.UserDAOImpl;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import io.javalin.websocket.WsContext;
+import com.google.gson.Gson;
 
 public class AppController {
-
-    // private static MessageDAOImpl msgDao = new MessageDAOImpl();
+    private static Map<WsContext, String> userSocketMap = new ConcurrentHashMap<>();
+    private static MessageDAOImpl msgDao = new MessageDAOImpl();
     private static UserDAOImpl userDao = new UserDAOImpl();
     private static RoomDAOImpl roomDao = new RoomDAOImpl();
 
@@ -39,10 +43,62 @@ public class AppController {
         app.post("/signup", AppController::handleSignUp);
 
         app.get("/rooms", AppController::handleGetAllRooms);
-        app.get("/rooms/{roomId}/messages", AppController::handleGetMessagesInRoomId);
-
-        app.post("/rooms/{roomId}/postMessage", AppController::handlePostMessage);
+        // app.get("/rooms/{roomId}/messages",
+        // AppController::handleGetMessagesInRoomId);
         app.get("/get/userById/{userId}", AppController::handleGetUserById);
+
+        // web socket routes
+
+        app.ws("/rooms/{roomId}/messages", ws -> { // user clicked on a room (joins a room)
+            ws.onConnect(ctx -> {// when they connect to a room, get all of that rooms messages and display them
+                int roomId = Integer.parseInt(ctx.pathParam("roomId"));
+
+                String token = ctx.queryParam("token");
+                User currentSocketUser = userDao.getUserByUniqueUsername(JWTSecurity.extractUsername(token));
+                userSocketMap.put(ctx, currentSocketUser.getUsername());
+
+                ArrayList<Message> allMsgs = new ArrayList<Message>();
+                allMsgs = (ArrayList<Message>) roomDao.getFormattedMsgsInRoomId(roomId);
+                Gson gson = new Gson();
+                String json = gson.toJson(allMsgs);
+
+                int numUsersInRoom = roomDao.incNumberOfUsersInRoom(roomId);
+                ctx.send(json);
+                System.out.println("SUCCESSFULL CONNECTION USING WEBSOCKET");
+            });
+            ws.onClose(ctx -> {
+                int roomId = Integer.parseInt(ctx.pathParam("roomId"));
+                String username = userSocketMap.get(ctx);
+                userSocketMap.remove(ctx);
+                int numUsersInRoom = roomDao.decNumberOfUsersInRoom(roomId);
+
+                // display that username left the room;
+                System.out.println("SUCCESSFULL DISCONNECTION USING WEBSOCKET");
+            });
+            ws.onMessage(ctx -> {
+                System.out.println("ON MESSEAGE ON SERVER");
+                String username = userSocketMap.get(ctx);
+                String msg = ctx.message().replace("\"", "");
+                User messageOwner = userDao.getUserByUniqueUsername(username);
+                int roomId = Integer.parseInt(ctx.pathParam("roomId"));
+                Message curMsg = new Message(roomId, messageOwner.getId(), msg);
+                int savedMessageId = msgDao.createMessage(curMsg.getText(), messageOwner.getId(), roomId);
+                if (savedMessageId == -1) {
+                    System.err.println("Could not create message");
+
+                }
+                ArrayList<Message> allMsgs = new ArrayList<Message>();
+                Message sentMsg = msgDao.getMessageById(savedMessageId);
+                sentMsg.setMsgUsername(userSocketMap.get(ctx));
+                allMsgs.add(sentMsg);
+                Gson gson = new Gson();
+                String json = gson.toJson(allMsgs);
+                userSocketMap.keySet().stream().filter(context -> context.session.isOpen()).forEach(session -> {
+                    session.send(json);
+                });
+            });
+
+        });
 
     }
 
@@ -58,14 +114,13 @@ public class AppController {
             ctx.result(token);
             return;
         } else {
-            ctx.result("Incorrect login credentials");
+            throw new UnauthorizedResponse("Incorrect login credentials");
         }
     }
 
     public static void handleSignUp(Context ctx) throws SQLException {
         String username = ctx.formParam("username");
         String password = ctx.formParam("password");
-        System.out.println(username + password);
 
         User newUser = new User(username, password);
         int userId = userDao.createUser(newUser.getUsername(), newUser.getPassword());
@@ -73,7 +128,6 @@ public class AppController {
             System.err.println("Error creating user");
         }
         newUser.setId(userId);
-        System.out.println(newUser.toString());
 
         ctx.redirect("/LoginPage/login.html");
     }
@@ -99,7 +153,4 @@ public class AppController {
         ctx.json(foundUser);
     }
 
-    public static void handlePostMessage(Context ctx) throws SQLException {
-
-    }
 }
