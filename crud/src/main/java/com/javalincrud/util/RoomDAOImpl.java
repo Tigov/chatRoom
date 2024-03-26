@@ -110,7 +110,7 @@ public class RoomDAOImpl implements RoomDAO {
     @Override
     public int getNumberOfUsersInRoom(int roomId) throws SQLException {
         Connection con = DatabaseCon.getConnection();
-        String sql = "SELECT rooms.numberOfUsers FROM rooms WHERE rooms.roomdId = ?";
+        String sql = "SELECT rooms.numberOfUsers FROM rooms WHERE roomId = ?";
         PreparedStatement ps = con.prepareStatement(sql);
         ps.setInt(1, roomId);
         ResultSet rs = ps.executeQuery();
@@ -148,7 +148,7 @@ public class RoomDAOImpl implements RoomDAO {
     public int decNumberOfUsersInRoom(int roomId) throws SQLException {
         Connection con = DatabaseCon.getConnection();
 
-        // Increment the numberOfUsers
+        // decrement the numberOfUsers
         String updateSql = "UPDATE rooms SET numberOfUsers = numberOfUsers - 1 WHERE rooms.roomId = ?";
         PreparedStatement updatePs = con.prepareStatement(updateSql);
         updatePs.setInt(1, roomId);

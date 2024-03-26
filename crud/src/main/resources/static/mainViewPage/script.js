@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const token = localStorage.getItem("token");
   loadRooms();
   let currentRoomId = null;
-  console.log(token);
   async function loadRooms() {
     try {
       const res = await fetch("/rooms", {
@@ -18,6 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       allRooms.forEach((room) => {
         const listItem = document.createElement("li");
+        listItem.id = `room-${room.id}`; // Add an id to each room
+        console.log(`Created room with id: ${listItem.id}`); // Log the id of each room
         listItem.textContent = `Room ${room.id}: ${room.numberOfUsersInRoom} users`;
         listItem.onclick = async () => loadMessages(room.id); // Attach click event to load messages
         roomsList.appendChild(listItem);
@@ -53,54 +54,74 @@ document.addEventListener("DOMContentLoaded", function () {
         //we recieve a msg from the server
         let data = JSON.parse(msg.data);
         console.log(data);
-
-        data.forEach((message) => {
-          const date = new Date(message.timestamp);
-          const messageDiv = document.createElement("div");
-          messageDiv.classList.add("message");
-          messageDiv.innerHTML = `<span class="user">${
-            message.username
-          }:</span> ${
-            message.text
-          } <span class="timestamp"> ${date.toLocaleString()} </span>`;
-          messagesDiv.appendChild(messageDiv);
-        });
-        messageArea.style.display = "block";
+        if (!Array.isArray(data)) {
+          // if response is not an array
+          if (data.Update) {
+            let updateRoomId = data.roomId;
+            //if its a update user numbers (if someone joins a room somewhere, update its numberOfUsersInRoom tag)
+            const roomListItem = document.getElementById(
+              `room-${updateRoomId}`
+            );
+            console.log(roomListItem);
+            if (roomListItem) {
+              roomListItem.textContent = `Room ${updateRoomId}: ${data.numberOfUsersInRoom} users`;
+            }
+          }
+        } else if (Array.isArray(data)) {
+          // if its a regular message
+          data.forEach((message) => {
+            const date = new Date(message.timestamp);
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.innerHTML = `<span class="user">${
+              message.username
+            }:</span> ${
+              message.text
+            } <span class="timestamp"> ${date.toLocaleString()} </span>`;
+            messagesDiv.appendChild(messageDiv);
+          });
+          messageArea.style.display = "block";
+        }
       };
+      socket.onclose = async function (event) {
+        const roomListItem = document.getElementById(`room-${roomId}`);
+        console.log(roomListItem);
+        let response = await fetch(`/rooms/getNumUsersFromRoomId/${roomId}`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+        let data = await response.json();
 
-      //send a message
-      const messageForm = document.getElementById("message-form");
-      messageForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const messageInput = document.getElementById("message-input");
-        const messageText = messageInput.value;
-        console.log(messageText);
-
-        // Send the message object as a JSON string
-        socket.send(JSON.stringify(messageText));
-        messageInput.value = "";
-      });
-      socket.onclose = () => console.log(`You have left room ${roomId}`);
-    } catch (errror) {
+        let numberOfUsers = data.numberOfUsersInRoom;
+        console.log(
+          `NUMBER OF USERS ON SOCKET CLOSE: ${numberOfUsers} for roomId ${currentRoomId}`
+        );
+        if (roomListItem) {
+          roomListItem.textContent = `Room ${roomId}: ${numberOfUsers} users`;
+        }
+      };
+    } catch (error) {
       console.log(error);
     }
   }
 
-  // const messageForm = document.getElementById("message-form");
-  // messageForm.addEventListener("submit", async (event) => {
-  //   event.preventDefault();
-  //   const messageInput = document.getElementById("message-input");
-  //   const messageText = messageInput.value;
-  //   console.log(messageText);
-  //   const response = await fetch(`/rooms/${currentRoomId}/sendMessage`, {
-  //     method: "POST",
-  //     headers: {
-  //       Authorization: token,
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ text: messageText }),
-  //   });
-  //   const data = await response.json();
-  //   console.log(data);
-  // });
+  //send a message
+  const messageForm = document.getElementById("message-form");
+  messageForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const messageInput = document.getElementById("message-input");
+    const messageText = messageInput.value;
+
+    // Send the message object as a JSON string
+    socket.send(JSON.stringify(messageText));
+    messageInput.value = "";
+  });
+
+  window.addEventListener("beforeunload", () => {
+    localStorage.clear();
+    if (socket !== null) {
+      socket.close();
+    }
+  });
 });

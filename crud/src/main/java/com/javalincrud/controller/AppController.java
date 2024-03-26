@@ -46,11 +46,14 @@ public class AppController {
         // app.get("/rooms/{roomId}/messages",
         // AppController::handleGetMessagesInRoomId);
         app.get("/get/userById/{userId}", AppController::handleGetUserById);
+        app.get("/rooms/getNumUsersFromRoomId/{roomId}", AppController::handleGetNumUsersFromRoom);
 
         // web socket routes
 
         app.ws("/rooms/{roomId}/messages", ws -> { // user clicked on a room (joins a room)
             ws.onConnect(ctx -> {// when they connect to a room, get all of that rooms messages and display them
+                System.out.println("INSIDE CONNECT WEBSOCKET");
+
                 int roomId = Integer.parseInt(ctx.pathParam("roomId"));
 
                 String token = ctx.queryParam("token");
@@ -64,6 +67,13 @@ public class AppController {
 
                 int numUsersInRoom = roomDao.incNumberOfUsersInRoom(roomId);
                 ctx.send(json);
+                String update = "{\"Update\": true, \"roomId\": " + roomId + ", \"numberOfUsersInRoom\": "
+                        + numUsersInRoom + "}";
+
+                // send the update user numbers to all connected clients
+                userSocketMap.keySet().stream().filter(context -> context.session.isOpen()).forEach(session -> {
+                    session.send(update);
+                });
                 System.out.println("SUCCESSFULL CONNECTION USING WEBSOCKET");
             });
             ws.onClose(ctx -> {
@@ -72,6 +82,12 @@ public class AppController {
                 userSocketMap.remove(ctx);
                 int numUsersInRoom = roomDao.decNumberOfUsersInRoom(roomId);
 
+                String update = "{\"Update\": true, \"roomId\": " + roomId + ", \"numberOfUsersInRoom\": "
+                        + numUsersInRoom + "}";
+                // send the update user numbers to all connected clients
+                userSocketMap.keySet().stream().filter(context -> context.session.isOpen()).forEach(session -> {
+                    session.send(update);
+                });
                 // display that username left the room;
                 System.out.println("SUCCESSFULL DISCONNECTION USING WEBSOCKET");
             });
@@ -135,6 +151,7 @@ public class AppController {
     public static void handleGetAllRooms(Context ctx) throws SQLException {
         ArrayList<Room> allRooms = new ArrayList<Room>();
         allRooms = (ArrayList<Room>) roomDao.getAllRooms();
+        System.out.println(allRooms.toString());
         System.out.println("getAllRooms called with" + allRooms.toString());
         ctx.json(allRooms);
     }
@@ -151,6 +168,12 @@ public class AppController {
         User foundUser = userDao.getUserById(userId);
         System.out.println(foundUser.toString());
         ctx.json(foundUser);
+    }
+
+    public static void handleGetNumUsersFromRoom(Context ctx) throws SQLException {
+        int roomId = Integer.parseInt(ctx.pathParam("roomId"));
+        int retNum = roomDao.getNumberOfUsersInRoom(roomId);
+        ctx.json("{\"numberOfUsersInRoom\": " + retNum + "}");
     }
 
 }
