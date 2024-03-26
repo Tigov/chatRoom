@@ -51,14 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
     messagesDiv.innerHTML = "";
     try {
       socket.onmessage = (msg) => {
-        //we recieve a msg from the server
+        //we receive a msg from the server
         let data = JSON.parse(msg.data);
         console.log(data);
         if (!Array.isArray(data)) {
           // if response is not an array
           if (data.Update) {
             let updateRoomId = data.roomId;
-            //if its a update user numbers (if someone joins a room somewhere, update its numberOfUsersInRoom tag)
+            //if its an update user numbers (if someone joins a room somewhere, update its numberOfUsersInRoom tag)
             const roomListItem = document.getElementById(
               `room-${updateRoomId}`
             );
@@ -78,11 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }:</span> ${
               message.text
             } <span class="timestamp"> ${date.toLocaleString()} </span>`;
-            messagesDiv.appendChild(messageDiv);
+            messagesDiv.insertBefore(messageDiv, messagesDiv.firstChild);
           });
           messageArea.style.display = "block";
         }
       };
+
       socket.onclose = async function (event) {
         const roomListItem = document.getElementById(`room-${roomId}`);
         console.log(roomListItem);

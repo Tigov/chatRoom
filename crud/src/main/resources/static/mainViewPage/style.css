@@ -26,7 +26,11 @@ body {
 }
 
 #messages {
-    margin-top: 20px;
+    margin-top:20px;
+    display: flex;
+    flex-direction: column-reverse;
+    height:60vh;
+    overflow-y: auto;
 }
 
 .message {
@@ -46,3 +50,4 @@ body {
 .timestamp {
     margin-left: auto;
 }
+
