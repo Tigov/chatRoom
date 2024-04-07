@@ -1,0 +1,1 @@
+Chatroom application using Websockets and Javalin with Maven and a mySQL local database. Built using the MVC design approach. Very simple frontend and security as the purpose of this project was to work on the backend and interacting with websockets for real time updates.
