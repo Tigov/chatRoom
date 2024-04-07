@@ -9,9 +9,6 @@ import java.util.List;
 
 import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.UserDAO;
-import com.mysql.cj.jdbc.interceptors.ResultSetScannerInterceptor;
-
-import scala.annotation.unused;
 
 public class UserDAOImpl implements UserDAO {
 
@@ -30,7 +27,6 @@ public class UserDAOImpl implements UserDAO {
             foundUser = new User(userId, username, password);
         }
         return foundUser;
-
     }
 
     @Override

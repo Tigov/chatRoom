@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
       allRooms.forEach((room) => {
         const listItem = document.createElement("li");
         listItem.id = `room-${room.id}`; // Add an id to each room
-        console.log(`Created room with id: ${listItem.id}`); // Log the id of each room
         listItem.textContent = `Room ${room.id}: ${room.numberOfUsersInRoom} users`;
         listItem.onclick = async () => loadMessages(room.id); // Attach click event to load messages
         roomsList.appendChild(listItem);
@@ -54,6 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
         //we receive a msg from the server
         let data = JSON.parse(msg.data);
         console.log(data);
+        let msgOrigin = data[0];
+        console.log("Below this is msgOrigin:");
+        console.log(msgOrigin);
         if (!Array.isArray(data)) {
           // if response is not an array
           if (data.Update) {
@@ -67,9 +69,10 @@ document.addEventListener("DOMContentLoaded", function () {
               roomListItem.textContent = `Room ${updateRoomId}: ${data.numberOfUsersInRoom} users`;
             }
           }
-        } else if (Array.isArray(data)) {
-          // if its a regular message
-          data.forEach((message) => {
+        } else if (Array.isArray(data) && msgOrigin == currentRoomId) {
+          // if its a regular message sent to this current room
+          data.slice(1).forEach((message) => {
+            //each message from the server has the 1st element as the roomId
             const date = new Date(message.timestamp);
             const messageDiv = document.createElement("div");
             messageDiv.classList.add("message");

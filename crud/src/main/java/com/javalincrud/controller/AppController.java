@@ -52,16 +52,15 @@ public class AppController {
 
         app.ws("/rooms/{roomId}/messages", ws -> { // user clicked on a room (joins a room)
             ws.onConnect(ctx -> {// when they connect to a room, get all of that rooms messages and display them
-                System.out.println("INSIDE CONNECT WEBSOCKET");
-
                 int roomId = Integer.parseInt(ctx.pathParam("roomId"));
 
                 String token = ctx.queryParam("token");
                 User currentSocketUser = userDao.getUserByUniqueUsername(JWTSecurity.extractUsername(token));
                 userSocketMap.put(ctx, currentSocketUser.getUsername());
 
-                ArrayList<Message> allMsgs = new ArrayList<Message>();
-                allMsgs = (ArrayList<Message>) roomDao.getFormattedMsgsInRoomId(roomId);
+                ArrayList<Object> allMsgs = new ArrayList<>();
+                allMsgs = (ArrayList<Object>) roomDao.getFormattedMsgsInRoomId(roomId);
+                allMsgs.add(0, roomId); // insert the roomId to the beginning
                 Gson gson = new Gson();
                 String json = gson.toJson(allMsgs);
 
@@ -74,11 +73,9 @@ public class AppController {
                 userSocketMap.keySet().stream().filter(context -> context.session.isOpen()).forEach(session -> {
                     session.send(update);
                 });
-                System.out.println("SUCCESSFULL CONNECTION USING WEBSOCKET");
             });
             ws.onClose(ctx -> {
                 int roomId = Integer.parseInt(ctx.pathParam("roomId"));
-                String username = userSocketMap.get(ctx);
                 userSocketMap.remove(ctx);
                 int numUsersInRoom = roomDao.decNumberOfUsersInRoom(roomId);
 
@@ -88,11 +85,9 @@ public class AppController {
                 userSocketMap.keySet().stream().filter(context -> context.session.isOpen()).forEach(session -> {
                     session.send(update);
                 });
-                // display that username left the room;
-                System.out.println("SUCCESSFULL DISCONNECTION USING WEBSOCKET");
+
             });
             ws.onMessage(ctx -> {
-                System.out.println("ON MESSEAGE ON SERVER");
                 String username = userSocketMap.get(ctx);
                 String msg = ctx.message().replace("\"", "");
                 User messageOwner = userDao.getUserByUniqueUsername(username);
@@ -101,9 +96,10 @@ public class AppController {
                 int savedMessageId = msgDao.createMessage(curMsg.getText(), messageOwner.getId(), roomId);
                 if (savedMessageId == -1) {
                     System.err.println("Could not create message");
-
                 }
-                ArrayList<Message> allMsgs = new ArrayList<Message>();
+                ArrayList<Object> allMsgs = new ArrayList<>(); // the 1st item in the array is the roomId the rest is
+                                                               // the message
+                allMsgs.add(roomId);
                 Message sentMsg = msgDao.getMessageById(savedMessageId);
                 sentMsg.setMsgUsername(userSocketMap.get(ctx));
                 allMsgs.add(sentMsg);
@@ -113,16 +109,12 @@ public class AppController {
                     session.send(json);
                 });
             });
-
         });
-
     }
 
     public static void handleLogin(Context ctx) throws SQLException {
         String username = ctx.formParam("username");
         String password = ctx.formParam("password");
-
-        System.out.println(username + password);
 
         User foundUser = userDao.getUserByUsernamePass(username, password);
         if (foundUser != null) {
@@ -151,22 +143,19 @@ public class AppController {
     public static void handleGetAllRooms(Context ctx) throws SQLException {
         ArrayList<Room> allRooms = new ArrayList<Room>();
         allRooms = (ArrayList<Room>) roomDao.getAllRooms();
-        System.out.println(allRooms.toString());
-        System.out.println("getAllRooms called with" + allRooms.toString());
         ctx.json(allRooms);
     }
 
     public static void handleGetMessagesInRoomId(Context ctx) throws SQLException {
         int roomId = Integer.parseInt(ctx.pathParam("roomId"));
-        ArrayList<Message> allMsgs = new ArrayList<Message>();
-        allMsgs = (ArrayList<Message>) roomDao.getFormattedMsgsInRoomId(roomId);
+        ArrayList<Object> allMsgs = new ArrayList<>();
+        allMsgs = (ArrayList<Object>) roomDao.getFormattedMsgsInRoomId(roomId);
         ctx.json(allMsgs);
     }
 
     public static void handleGetUserById(Context ctx) throws SQLException {
         int userId = Integer.parseInt(ctx.pathParam("userId"));
         User foundUser = userDao.getUserById(userId);
-        System.out.println(foundUser.toString());
         ctx.json(foundUser);
     }
 

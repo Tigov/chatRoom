@@ -21,6 +21,6 @@ public interface MessageDAO {
 
     int createMessage(String text, int userId, int roomId) throws SQLException;
 
-  
+
 
 }

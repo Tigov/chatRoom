@@ -13,7 +13,6 @@ import com.javalincrud.model.Room;
 import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.RoomDAO;
 
-import io.javalin.http.Result;
 
 public class RoomDAOImpl implements RoomDAO {
 
@@ -84,9 +83,9 @@ public class RoomDAOImpl implements RoomDAO {
     }
 
     @Override
-    public List<Message> getFormattedMsgsInRoomId(int roomId) throws SQLException {
+    public List<Object> getFormattedMsgsInRoomId(int roomId) throws SQLException {
         Connection con = DatabaseCon.getConnection();
-        ArrayList<Message> allFormattedMsgs = new ArrayList<Message>();
+        ArrayList<Object> allFormattedMsgs = new ArrayList<>();
         String sql = "SELECT m.text, u.username, m.timestamp " +
                 "FROM messages m " +
                 "INNER JOIN rooms r ON m.roomId = r.roomId " +

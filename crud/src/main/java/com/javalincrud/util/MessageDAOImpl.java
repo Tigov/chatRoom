@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.javalincrud.model.Message;
-import com.javalincrud.model.Room;
-import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.MessageDAO;
 
 import java.sql.Connection;
