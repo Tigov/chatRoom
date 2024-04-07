@@ -43,9 +43,7 @@ public class AppController {
         app.post("/signup", AppController::handleSignUp);
 
         app.get("/rooms", AppController::handleGetAllRooms);
-        // app.get("/rooms/{roomId}/messages",
-        // AppController::handleGetMessagesInRoomId);
-        app.get("/get/userById/{userId}", AppController::handleGetUserById);
+
         app.get("/rooms/getNumUsersFromRoomId/{roomId}", AppController::handleGetNumUsersFromRoom);
 
         // web socket routes
@@ -144,19 +142,6 @@ public class AppController {
         ArrayList<Room> allRooms = new ArrayList<Room>();
         allRooms = (ArrayList<Room>) roomDao.getAllRooms();
         ctx.json(allRooms);
-    }
-
-    public static void handleGetMessagesInRoomId(Context ctx) throws SQLException {
-        int roomId = Integer.parseInt(ctx.pathParam("roomId"));
-        ArrayList<Object> allMsgs = new ArrayList<>();
-        allMsgs = (ArrayList<Object>) roomDao.getFormattedMsgsInRoomId(roomId);
-        ctx.json(allMsgs);
-    }
-
-    public static void handleGetUserById(Context ctx) throws SQLException {
-        int userId = Integer.parseInt(ctx.pathParam("userId"));
-        User foundUser = userDao.getUserById(userId);
-        ctx.json(foundUser);
     }
 
     public static void handleGetNumUsersFromRoom(Context ctx) throws SQLException {

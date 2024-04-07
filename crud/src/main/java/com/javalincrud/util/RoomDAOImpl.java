@@ -10,17 +10,9 @@ import java.util.List;
 
 import com.javalincrud.model.Message;
 import com.javalincrud.model.Room;
-import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.RoomDAO;
 
-
 public class RoomDAOImpl implements RoomDAO {
-
-    @Override
-    public Room getRoomById() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRoomById'");
-    }
 
     @Override
     public List<Room> getAllRooms() throws SQLException {
@@ -39,30 +31,6 @@ public class RoomDAOImpl implements RoomDAO {
     }
 
     @Override
-    public List<Message> getAllRoomMsgs() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllRoomMsgs'");
-    }
-
-    @Override
-    public List<User> getAllRoomUsers() throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllRoomUsers'");
-    }
-
-    @Override
-    public void addUserToRoom(User user) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addUserToRoom'");
-    }
-
-    @Override
-    public void addMsgToRoom(Message msg) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addMsgToRoom'");
-    }
-
-    @Override
     public int createRoom() throws SQLException {
         Connection con = DatabaseCon.getConnection();
         String sql = "INSERT INTO rooms ()  VALUES ()";
@@ -77,13 +45,8 @@ public class RoomDAOImpl implements RoomDAO {
     }
 
     @Override
-    public void deleteRoomByRoomId(int roomId) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRoomByRoomId'");
-    }
-
-    @Override
-    public List<Object> getFormattedMsgsInRoomId(int roomId) throws SQLException {
+    public List<Object> getFormattedMsgsInRoomId(int roomId) throws SQLException { // get a list of every message from a
+                                                                                   // room
         Connection con = DatabaseCon.getConnection();
         ArrayList<Object> allFormattedMsgs = new ArrayList<>();
         String sql = "SELECT m.text, u.username, m.timestamp " +

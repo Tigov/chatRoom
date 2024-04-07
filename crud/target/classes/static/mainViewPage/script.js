@@ -52,10 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
       socket.onmessage = (msg) => {
         //we receive a msg from the server
         let data = JSON.parse(msg.data);
-        console.log(data);
         let msgOrigin = data[0];
-        console.log("Below this is msgOrigin:");
-        console.log(msgOrigin);
+
         if (!Array.isArray(data)) {
           // if response is not an array
           if (data.Update) {
@@ -64,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const roomListItem = document.getElementById(
               `room-${updateRoomId}`
             );
-            console.log(roomListItem);
             if (roomListItem) {
               roomListItem.textContent = `Room ${updateRoomId}: ${data.numberOfUsersInRoom} users`;
             }
@@ -89,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       socket.onclose = async function (event) {
         const roomListItem = document.getElementById(`room-${roomId}`);
-        console.log(roomListItem);
         let response = await fetch(`/rooms/getNumUsersFromRoomId/${roomId}`, {
           headers: {
             Authorization: token,
@@ -98,9 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let data = await response.json();
 
         let numberOfUsers = data.numberOfUsersInRoom;
-        console.log(
-          `NUMBER OF USERS ON SOCKET CLOSE: ${numberOfUsers} for roomId ${currentRoomId}`
-        );
         if (roomListItem) {
           roomListItem.textContent = `Room ${roomId}: ${numberOfUsers} users`;
         }

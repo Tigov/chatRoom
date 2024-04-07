@@ -11,24 +11,6 @@ import com.javalincrud.model.User;
 import com.javalincrud.model.DAO.UserDAO;
 
 public class UserDAOImpl implements UserDAO {
-
-    @Override
-    public User getUserById(int id) throws SQLException {
-        Connection con = DatabaseCon.getConnection();
-        User foundUser = null;
-        String sql = "SELECT * FROM users WHERE users.userId = ?";
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1, id);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            int userId = rs.getInt("userId");
-            String username = rs.getString("username");
-            String password = rs.getString("password");
-            foundUser = new User(userId, username, password);
-        }
-        return foundUser;
-    }
-
     @Override
     public User getUserByUsernamePass(String username, String pass) throws SQLException {
         Connection con = DatabaseCon.getConnection();
@@ -62,18 +44,6 @@ public class UserDAOImpl implements UserDAO {
             allUsers.add(foundUser);
         }
         return allUsers;
-    }
-
-    @Override
-    public void deleteUserById(int id) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUserById'");
-    }
-
-    @Override
-    public void updateUser(User user) throws SQLException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
     }
 
     @Override

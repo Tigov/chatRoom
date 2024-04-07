@@ -33,15 +33,6 @@ public class MessageDAOImpl implements MessageDAO {
         return msg;
     }
 
-    @Override
-    public List<Message> getAllMessages() throws SQLException {
-        return null;
-    }
-
-    public List<Message> getAllMessagesFromUser(int id) throws SQLException {
-        return null;
-    }
-
     public List<Message> getAllMessagesFromRoom(int id) throws SQLException {
         Connection con = DatabaseCon.getConnection();
         ArrayList<Message> foundMsgs = new ArrayList<Message>();
@@ -60,19 +51,9 @@ public class MessageDAOImpl implements MessageDAO {
             if (newMsg != null) {
                 foundMsgs.add(newMsg);
             }
-            System.out.println(newMsg.toString());
         }
         return foundMsgs;
     }
-
-    @Override
-    public void deleteMessageById(int id) throws SQLException {
-    }
-
-    @Override
-    public void updateMessageText(String text) throws SQLException {
-    }
-
     @Override
     public int createMessage(String text, int userId, int roomId) throws SQLException {
         Connection con = DatabaseCon.getConnection();
